@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Meu Blog{% endblock %}
+
+{% block content %}
+
+<!-- banner.html -->
+
+<div class="banner">
+  <img src="{% static 'img/Hedy_Lamar.png' %}" class="banner-image" alt="Mulheres na Tecnologia">
+  <div class="banner-overlay"></div>
+  <div class="banner-content">
+    <h2 class="banner-title banner-title-left">Mulheres</h2>
+    <h2 class="banner-title banner-title-right">Tecnologia</h2>
+  </div>
+</div>
+
+<!-- cards.html -->
+<div class="text-start mt-5 post-list">
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for post in posts %}
+    <div class="col">
+      <div class="card" style="min-width: 200px;">
+        <div class="card-header bg-transparent h-75">
+          <small>{{ post.author }}</small> <!--nome autor-->
+        </div>
+        {% if post.image %}
+        <img src="{{ post.image.url }}" class="card-img-top img-post w-100 p-3 "
+          style="height: 150px; border-radius: 10px;" alt="Imagem do post">
+        {% else %}
+        <img src="{% static 'img/placeholder.png' %}" class="card-img-top img-post " alt="Imagem padrão">
+        {% endif %}
+
+
+        <div class="card-body">
+          <h5 class="card-title">{{ post.title }}</h5> <!--Mostra Titulo-->
+          <p class="card-text text-truncate">
+            {{ post.content|truncatewords:20}} <!-- Trunca o conteúdo do post para mostrar as primeiras 20 palavras -->
+          </p>
+
+          <div class="text-end">
+            <a href="{% url 'post-detail' post.id %}" class="btn btn-primary btn-sm btn-icon">leia mais <i
+                class="fa fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+        <div class="card-footer py-0">
+          <ul class="list-unstyled footer-post">
+            <li class="d-inline me-3">
+              <small class="text-muted"><i class="fa fa-calendar" aria-hidden="true"></i>
+                {{ post.created_at|date:"d/m/Y" }}</small>
+            </li>
+            <!-- <li class="d-inline me-3">
+              <small class="text-muted"><i class="fa fa-commenting-o" aria-hidden="true"></i> {{ post.comments.count }}
+                comentários
+              </small>
+            </li> -->
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

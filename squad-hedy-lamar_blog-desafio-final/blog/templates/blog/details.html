@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load comments %}
+
+{% block title %}Home - Meu Blog{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4 mx-20 post-details">
+  {% if post.image %}
+  <img src="{{ post.image.url }}" class="img-fluid img-post" alt="Imagem do post">
+  {% endif %}
+  <div class="conteudo-post">
+    <h1 class="titulo-post">{{ post.title }}</h1>
+    <p class="mt-5">{{ post.content }}</p>
+    <div>
+    <a href ="{% url 'voltar' %}"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a>
+  </div>
+    <div class="footer-conteudo">
+      <small>
+        <i class="fa fa-user" aria-hidden="true"></i> Publicado por: {{ post.author.username }}</small>
+      <small>
+        <i class="fa fa-calendar" aria-hidden="true"></i> em: {{ post.created_at }}
+      </small>
+      <small>
+        {% get_comment_count for post as comment_count %}
+        <i class="fa fa-comments-o" aria-hidden="true"></i> {{ comment_count }} comentários
+      </small>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="comentarios mt-5">
+    <div class="container my-5 py-5">
+      <div class="row d-flex justify-content-center">
+
+        <div class="col-md-12 col-lg-10 col-xl-8">
+
+          <!-- Card -->
+          {% for comment in comments %}
+          <div class="card mb-1">
+            <div class="card-body">
+              <div class="d-flex flex-start align-items-center">
+                <img src="{% static 'img/avatar.png' %}" 
+                  class="rounded-circle shadow-1-strong me-3" 
+                  width="60"
+                  height="60" 
+                  alt="avatar" />
+                <div>
+                  <h6 class="fw-bold mb-1">{{ comment.user_name }}</h6>
+                  <p class="text-muted small mb-0">
+                    {{ comment.submit_date }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-2 mb-4">
+                {{ comment.comment|linebreaks }}
+              </div>
+
+              <hr />
+
+              <div class="small d-flex justify-content-start comentario-links">
+                <a href="#!" class="d-flex align-items-center me-3">
+                  <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                  <p class="mb-0"> Like</p>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank"
+                  class="btn btn-outline-primary"> <i class="fa fa-facebook" aria-hidden="true"></i> Facebook </a>
+                  <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}" target="_blank"
+                  class="btn btn-outline-primary"> <i class="fa fa-twitter" aria-hidden="true"></i> Twitter </a>
+                  <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank"
+                  class="btn btn-outline-primary"> <i class="fa fa-linkedin" aria-hidden="true"></i> LinkedIn </a>
+                  
+                </a>
+              </div>
+
+            </div>
+          </div>
+          {% endfor %}
+          <!-- Card -->
+
+          {% if user.is_authenticated %}
+
+          <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
+            <div class="d-flex flex-start w-100">
+              <img class="rounded-circle shadow-1-strong me-3"
+              src="{% static 'img/avatar.png' %}" alt="avatar" width="40"
+              height="40" />
+              <div data-mdb-input-init class="form-outline w-100">
+
+                {% get_comment_form for post as form %}
+                <form action="{% comment_form_target %}" method="post">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="next" value="{% url 'post-detail' pk=post.pk %}" />
+                    {% for hidden in form.hidden_fields %}
+                      {{ hidden }} 
+                    {% endfor %}
+
+                    {% for field in form %}
+                      {% if field.name == "comment" %}
+                      <div class="mb-3">
+                        <textarea 
+                          class="form-control"
+                          rows="4" 
+                          style="background: #fff;"
+                          id="{{ field.id_for_label }}" 
+                          name="{{ field.name }}"
+                          placeholder="Digite seu comentário"
+                          required
+                          oninvalid="this.setCustomValidity('Por favor, insira um comentário.')" 
+                          oninput="this.setCustomValidity('')"
+                          ></textarea>
+                      </div>
+                      {% endif %}
+
+                      {% if field.name == "name" %}
+                      <div class="mb-3">
+                        <input class="form-control" type="hidden" id="{{ field.id_for_label }}" name="{{ field.name }}" placeholder="Digite seu nome" value="{{ user.username }}"/>
+                      </div>
+                      {% endif %}
+
+                      {% if field.name == "email" %}
+                      <div class="mb-3">
+                        <input class="form-control" type="hidden" id="{{ field.id_for_label }}" name="{{ field.name }}" placeholder="Digite seu email" value="{{ user.email }}"/>
+                      </div>
+                      {% endif %}
+
+                      {% if field.name == "url" %}
+                      <div class="mb-3">
+                        <input class="form-control" type="hidden" id="{{ field.id_for_label }}" name="{{ field.name }}" placeholder="Digite a url" value="http://localhost:8000/"/>
+                      </div>
+                      {% endif %}
+                    {% endfor %}
+
+                    <div class="float-end mt-2 pt-1">
+                      <button  type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-sm">Postar</button>
+                      <button  type="reset" data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary btn-sm">Cancelar</button>
+                    </div>
+                </form>
+              </div>
+
+            </div>
+          </div>
+          {% else %}
+          <div class="mt-5" style="background-color: #f8f9fa; padding: 5px; border-radius: 5px;">
+            <h4 class="text-center">Para postar um comentário, faça o <a href="{% url 'login' %}">login</a></h4>
+          </div>
+          {% endif %}
+          
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+{% endblock %}
